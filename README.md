@@ -20,3 +20,13 @@ Explore Observability (logs, metrics, and traces) using tools like Prometheus an
 Integrate Security practices and understand GitOps workflows using tools like Argo CD.
 
 The speaker advises against tool overload and suggests building projects that integrate these technologies into a single, cohesive workflow (12:09). A recommended AI DevOps Masterclass is also highlighted to provide deeper, practical application of these concepts.
+
+https://youtu.be/Kb-sw00KJ10?si=KvLFFHmXl8OBvQkt
+
+Full Stack developer AI devops course 
+1.learn Devops 
+2.Docker 
+3.K8s
+4.AWS/Azure/GCP
+5.CiCD pipeline with GitHub actions
+6.Terraform
