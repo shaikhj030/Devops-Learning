@@ -1,0 +1,89 @@
+What Is the Internet?
+The internet is a global network of interconnected networks — millions of private, public, and enterprise networks linked together, all following a common set of rules (protocols) so any device can communicate with any other. 
+
+The word itself is short for interconnected networks.
+
+Internet ≠ World Wide Web. The internet is the infrastructure (cables, routers, protocols).  The Web is just one service that runs on top of it (along with email, DNS, streaming, etc.).
+
+How It Works — In 5 Steps
+1. Physical Layer: Bits on the Wire
+All data — a photo, a video, a text message — is converted into bits (1s and 0s) and travels as:
+
+Pulses of light through fiber-optic cables (underground + undersea)
+Electrical signals through copper wires
+Radio waves (Wi-Fi, cellular, satellite)
+2. Data Is Split Into Packets
+Instead of sending one big file, the internet splits data into small packets.  Each packet carries:
+
+A source IP address (where it came from)
+A destination IP address (where it's going)
+A sequence number (so the receiver can reassemble them in order)
+The actual data chunk
+Packets can take different routes and arrive out of order — that's fine, the receiver reassembles them.
+
+3. Routers Forward Packets
+Routers are the "post offices" of the internet. Each one:
+
+Reads the destination IP on the packet
+Looks up its routing table to find the best next hop
+Forwards the packet to that next router
+This happens hundreds of times between your device and the destination. At the ISP level, the Border Gateway Protocol (BGP) is how ISPs exchange information about which networks are reachable.
+
+4. The Protocol Stack (TCP/IP)
+The internet runs on a layered protocol suite — each layer does one job:
+
+Layer	Key Protocols	Job
+Application	HTTP, DNS, SSH, SMTP	What is being communicated (a web page, an email)
+Transport	TCP / UDP	How reliably — TCP guarantees order & delivery; UDP is fast but fire-and-forget
+Internet	IP (IPv4/IPv6)	Where — assigns addresses, routes packets
+Network Access	Ethernet, Wi-Fi	How physically — sends bits over the wire
+
+Key distinction:
+
+IP is best-effort — no guarantees on delivery, order, or integrity
+TCP adds reliability on top: sequence numbers, acknowledgments, retransmission 
+5. The Full Journey (Example: Typing a URL)
+When you type https://www.example.com:
+
+① DNS Lookup
+   Browser asks: "What's the IP of www.example.com?"
+   → DNS servers answer: 93.184.216.34
+
+② TCP Handshake (3-way)
+   Client → Server:  SYN
+   Server → Client:  SYN-ACK
+   Client → Server:  ACK
+   (If HTTPS → TLS handshake to encrypt)
+
+③ HTTP Request Sent
+   GET / HTTP/1.1
+   Host: www.example.com
+
+④ Packets Travel
+   Your router → ISP → backbone routers → server's network → server
+   (each router reads the IP, forwards to next hop)
+
+⑤ Server Responds
+   Returns the page as HTTP response packets
+
+⑥ Reassembly & Display
+   Your TCP stack reassembles packets in order
+   Browser renders the page
+
+Total time: typically 20–200 ms.
+
+Key Concepts at a Glance
+Concept	What It Does
+IP Address	Unique identifier for every device (like a house address)
+DNS	Translates human-readable names → IP addresses (like a phone book)
+Router	Forwards packets between networks based on destination IP
+BGP	The "routing protocol of the internet" — how ISPs share reachability info
+TCP	Reliable, ordered delivery (web, email, file transfer)
+UDP	Fast, unreliable delivery (video calls, DNS, gaming)
+Packet	Small, self-contained chunk of data, independently routable
+CDN	Caches content at edge locations close to users (we covered this earlier)
+
+The One-Sentence Summary
+The internet works by splitting data into small packets, giving each packet a destination address, routing them hop-by-hop through routers using the TCP/IP protocol suite, and reassembling them at the destination — all happening in milliseconds, billions of times per second.
+
+This is the foundation everything else builds on: cloud regions, availability zones, CDNs, load balancers, Kubernetes networking — it's all just packets finding their way from A to B.
