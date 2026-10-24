@@ -1,0 +1,116 @@
+These five concepts are the building blocks of how the internet delivers content. Think of them as a hierarchy from smallest → largest:
+
+Cache (a feature) → Edge Location (a site) → Region (a city) → AZ (a building)
+                                              ↑
+                        CDN (the network connecting edge locations)   
+
+1. Cache
+A cache is simply a temporary copy of data stored closer to the user so repeated requests don't have to go all the way back to the source. 
+
+Cache hit → the copy exists and is fresh → served instantly
+Cache miss → no copy, or it's expired → fetch from origin, store a copy, then serve 
+Caches exist at every layer:
+
+Layer	Example
+Browser	Your Chrome stores images/CSS locally
+CDN edge	A server in Mumbai stores a copy of image.jpg
+Application	Redis/Memcached stores database query results
+OS	Page cache holds recently read disk blocks
+
+The core idea is the same everywhere: don't re-fetch what you already have.
+
+2. CDN (Content Delivery Network)
+A CDN is a globally distributed network of servers whose job is to serve content from a location close to the user instead of a single origin server. 
+
+How it works, step by step:
+
+User in Mumbai requests example.com/image.jpg
+        │
+        ▼
+DNS resolves to nearest CDN edge (Mumbai PoP)
+        │
+        ▼
+Edge checks its local cache
+        │
+        ├── HIT  → serves cached copy in ~5 ms  ✅
+        │
+        └── MISS → forwards to origin server (e.g., Virginia)
+                   stores the response locally
+                   serves it to the user          ⏱ ~200 ms   
+
+
+Key CDN providers: Cloudflare, Akamai, Fastly, AWS CloudFront.
+
+What a CDN caches:
+
+Static assets (images, CSS, JS, videos) — always
+HTML pages — if configured (full-page caching)
+API responses — selectively, via Cache-Control headers
+What controls caching:
+
+TTL (Time-to-Live): how long a cached copy stays valid
+Cache key: usually the URL + selected headers/cookies — determines what counts as the same object
+Cache-Control headers: the origin tells the CDN max-age=3600 (cache for 1 hour) or no-cache (don't cache) 
+
+. Edge Location (Point of Presence / PoP)
+An edge location is a physical site where a CDN keeps its servers.  It's not where your application runs — it's a caching and delivery outpost placed in cities near end users. 
+
+AWS has 600+ edge locations worldwide
+Cloudflare has 300+ cities
+They are smaller than full data centers — optimized for caching, not compute
+Edge location ≠ Region. An edge location in Mumbai doesn't have your databases, your EC2 instances, or your Kubernetes clusters. It has caches and routing hardware.
+
+Analogy: If your origin server is a warehouse in Virginia, an edge location is a delivery locker in Mumbai. You don't run your business from the locker — you just store a few popular items there so customers don't have to wait for shipping from Virginia.
+
+
+4. Region
+A Region is a geographic area where a cloud provider operates a full set of data centers and offers its complete service catalog (compute, storage, databases, networking, AI, etc.). 
+
+AWS: 33+ regions (e.g., ap-south-1 = Mumbai, us-east-1 = Virginia)
+Each region is independent — a failure in one doesn't affect another
+You choose which region to deploy in based on:
+Data residency laws (Indian data must stay in India)
+Latency (closest to your users)
+Cost (varies by region)
+Service availability (not all services are in all regions)
+Analogy: A Region is the city where you build your business. 
+
+
+
+5. Availability Zone (AZ)
+An Availability Zone is one or more physically separate data centers within a single Region, each with:
+
+Independent power
+Independent cooling
+Independent networking
+Redundant connectivity to the region backbone 
+Typical region: 3–6 AZs, physically tens of kilometers apart (connected by low-latency fiber).
+
+Why AZs matter:
+
+If one AZ loses power, the others keep running → high availability
+You spread instances across AZs so a single data center failure doesn't take down your app
+Most cloud services (RDS Multi-AZ, ELB, EFS) are multi-AZ by default
+Analogy: If a Region is the city, an AZ is one independent building in that city.  If one building catches fire, the others are fine.
+
+
+
+┌─────────────────────────────────────────────────────────┐
+│  Region: ap-south-1 (Mumbai)                            │
+│                                                         │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐              │
+│  │   AZ-a   │  │   AZ-b   │  │   AZ-c   │  ← Your      │
+│  │ (DC 1)   │  │ (DC 2)   │  │ (DC 3)   │    app runs  │
+│  └──────────┘  └──────────┘  └──────────┘    here      │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+
+  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐
+  │ Edge:   │  │ Edge:   │  │ Edge:   │  │ Edge:   │  ← CDN
+  │ Mumbai  │  │ Delhi   │  │ London  │  │ NYC     │    caches
+  └─────────┘  └─────────┘  └─────────┘  └─────────┘    content
+                                                           here   
+
+
+For DevOps specifically: you deploy across AZs for HA, across regions for DR, and put a CDN in front for performance. Those three decisions are the backbone of almost every production architecture.
+
